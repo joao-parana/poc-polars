@@ -20,6 +20,10 @@ python3 -m build
 python3 -m hatch publish
 ```
 
+## Conteúdo
+
+Veja a documentação em [docs](docs/01.introdução.md).
+
 ## Licença
 
 `poc-polars` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
