@@ -26,15 +26,24 @@ result = (
       .collect()  # Executa a query otimizada em Parquet com 'Predicate Pushdown'' e 'Projection Pruning''
 )
 end = time.perf_counter()
-print(f" Polars: {(end-start)/10:.4f} segundos. Resultado = \n{result}")
+polars_time = (end-start)/10
+print(f" Polars: {polars_time:.4f} segundos. Resultado = \n{result}")
 
 start = time.perf_counter()
 # Em Pandas (apesar de mais simples é menos eficiente)
 df = pd.read_parquet("data/parquet/nyctlc/")
-result = df[df["RatecodeID"] == 2].groupby("PULocationID")["fare_amount"].sum()
+# result = df[df["RatecodeID"] == 2].groupby("PULocationID")["fare_amount"].sum()
+
+result = (
+    df[df["RatecodeID"].isin([2, 3])]  # Filtra RatecodeID 2 ou 3
+    .groupby(["RatecodeID", "PULocationID"], as_index=False)  # Group By
+    .agg(fare_amount_sum=("fare_amount", "sum"))  # Soma de fare_amount
+)
 end = time.perf_counter()
-print(f" Pandas: {(end-start)/10:.4f} segundos. "
+pandas_time = (end-start)/10
+print(f" Pandas: {pandas_time:.4f} segundos. "
       f"{result.shape} - Resultado = \n{result}")
 
-print(f"Compare os resultados do shape dos DataFrames no Polars e no Pandas. "
-      f"Veja que o Polars tem uma abordagem mais regular em termos de dados Tabulares.")
+print("Compare os resultados do shape dos DataFrames no Polars e no Pandas. "
+      "O Polars é mais eficiente em termos de tempo e memória. "
+      f"Pandas {(pandas_time/polars_time):.2f} vezes mais lento")
